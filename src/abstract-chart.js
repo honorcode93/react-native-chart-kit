@@ -40,7 +40,10 @@ class AbstractChart extends Component {
   }
 
   renderHorizontalLines = config => {
-    const {count, width, height, paddingTop, paddingRight} = config
+    const {count, width, height, paddingTop, paddingRight, innerLines = {}} = config
+    const stroke = innerLines.color || this.props.chartConfig.color(0.2);
+    const dash = (innerLines.dashed || true) ? "5, 10" : undefined;
+    const strokeWidth = innerLines.width || 1;
     return [...new Array(count)].map((_, i) => {
       return (
         <Line
@@ -49,16 +52,19 @@ class AbstractChart extends Component {
           y1={(height / 4) * i + paddingTop}
           x2={width}
           y2={(height / 4) * i + paddingTop}
-          stroke={this.props.chartConfig.color(0.2)}
-          strokeDasharray="5, 10"
-          strokeWidth={1}
+          stroke={stroke}
+          strokeDasharray={dash}
+          strokeWidth={strokeWidth}
         />
       )
     })
   }
 
   renderHorizontalLine = config => {
-    const {width, height, paddingTop, paddingRight} = config
+    const {width, height, paddingTop, paddingRight, outerLines} = config
+    const stroke = outerLines.color || this.props.chartConfig.color(0.2);
+    const dash = (outerLines.dashed || true) ? "5, 10" : undefined;
+    const strokeWidth = outerLines.width || 1;
     return (
       <Line
         key={Math.random()}
@@ -66,9 +72,9 @@ class AbstractChart extends Component {
         y1={height - height / 4 + paddingTop}
         x2={width}
         y2={height - height / 4 + paddingTop}
-        stroke={this.props.chartConfig.color(0.2)}
-        strokeDasharray="5, 10"
-        strokeWidth={1}
+        stroke={stroke}
+          strokeDasharray={dash}
+          strokeWidth={strokeWidth}
       />
     )
   }
@@ -150,7 +156,11 @@ class AbstractChart extends Component {
   }
 
   renderVerticalLines = config => {
-    const {data, width, height, paddingTop, paddingRight} = config
+    const {data, width, height, paddingTop, paddingRight, innerLines = {}} = config
+
+    const stroke = innerLines.color || this.props.chartConfig.color(0.2);
+    const dash = (innerLines.dashed || true) ? "5, 10" : undefined;
+    const strokeWidth = innerLines.width || 1;
     return [...new Array(data.length)].map((_, i) => {
       return (
         <Line
@@ -163,16 +173,19 @@ class AbstractChart extends Component {
             ((width - paddingRight) / data.length) * i + paddingRight
           )}
           y2={height - height / 4 + paddingTop}
-          stroke={this.props.chartConfig.color(0.2)}
-          strokeDasharray="5, 10"
-          strokeWidth={1}
+          stroke={stroke}
+          strokeDasharray={dash}
+          strokeWidth={strokeWidth}
         />
       )
     })
   }
 
   renderVerticalLine = config => {
-    const {height, paddingTop, paddingRight} = config
+    const {height, paddingTop, paddingRight, outerLines = {}} = config
+    const stroke = outerLines.color || this.props.chartConfig.color(0.2);
+    const dash = (outerLines.dashed || true) ? "5, 10" : undefined;
+    const strokeWidth = outerLines.width || 1;
     return (
       <Line
         key={Math.random()}
@@ -180,9 +193,9 @@ class AbstractChart extends Component {
         y1={0}
         x2={Math.floor(paddingRight)}
         y2={height - height / 4 + paddingTop}
-        stroke={this.props.chartConfig.color(0.2)}
-        strokeDasharray="5, 10"
-        strokeWidth={1}
+        stroke={stroke}
+        strokeDasharray={dash}
+        strokeWidth={strokeWidth}
       />
     )
   }

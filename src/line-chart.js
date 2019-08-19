@@ -221,6 +221,8 @@ class LineChart extends AbstractChart {
       withShadow = true,
       withDots = true,
       withInnerLines = true,
+      withVerticalInnerLines = true,
+      withHorizontalInnerLines = true,
       withOuterLines = true,
       withHorizontalLabels = true,
       withVerticalLabels = true,
@@ -251,7 +253,7 @@ class LineChart extends AbstractChart {
               fill="url(#backgroundGradient)"
             />
             <G>
-              {withInnerLines
+              {withInnerLines && withHorizontalInnerLines
                 ? this.renderHorizontalLines({
                     ...config,
                     count: 4,
@@ -278,7 +280,7 @@ class LineChart extends AbstractChart {
               : null}
             </G>
             <G>
-              {withInnerLines
+              {withInnerLines && withVerticalInnerLines
                 ? this.renderVerticalLines({
                     ...config,
                     data: data.datasets[0].data,
