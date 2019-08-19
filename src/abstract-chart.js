@@ -42,7 +42,8 @@ class AbstractChart extends Component {
   renderHorizontalLines = config => {
     const {count, width, height, paddingTop, paddingRight, innerLines = {}} = config
     const stroke = innerLines.color || this.props.chartConfig.color(0.2);
-    const dash = (innerLines.dashed || true) ? "5, 10" : undefined;
+    const isDashed = innerLines.dashed === undefined ? true : innerLines.dashed;
+    const dash = isDashed ? "5, 10" : undefined;
     const strokeWidth = innerLines.width || 1;
     return [...new Array(count)].map((_, i) => {
       return (
@@ -63,7 +64,9 @@ class AbstractChart extends Component {
   renderHorizontalLine = config => {
     const {width, height, paddingTop, paddingRight, outerLines} = config
     const stroke = outerLines.color || this.props.chartConfig.color(0.2);
-    const dash = (outerLines.dashed || true) ? "5, 10" : undefined;
+
+    const isDashed = outerLines.dashed === undefined ? true : outerLines.dashed;
+    const dash = isDashed ? "5, 10" : undefined;
     const strokeWidth = outerLines.width || 1;
     return (
       <Line
@@ -159,7 +162,8 @@ class AbstractChart extends Component {
     const {data, width, height, paddingTop, paddingRight, innerLines = {}} = config
 
     const stroke = innerLines.color || this.props.chartConfig.color(0.2);
-    const dash = (innerLines.dashed || true) ? "5, 10" : undefined;
+    const isDashed = innerLines.dashed === undefined ? true : innerLines.dashed;
+    const dash = isDashed ? "5, 10" : undefined;
     const strokeWidth = innerLines.width || 1;
     return [...new Array(data.length)].map((_, i) => {
       return (
@@ -184,7 +188,8 @@ class AbstractChart extends Component {
   renderVerticalLine = config => {
     const {height, paddingTop, paddingRight, outerLines = {}} = config
     const stroke = outerLines.color || this.props.chartConfig.color(0.2);
-    const dash = (outerLines.dashed || true) ? "5, 10" : undefined;
+    const isDashed = outerLines.dashed === undefined ? true : outerLines.dashed;
+    const dash = isDashed ? "5, 10" : undefined;
     const strokeWidth = outerLines.width || 1;
     return (
       <Line
