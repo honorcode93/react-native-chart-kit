@@ -226,6 +226,8 @@ class LineChart extends AbstractChart {
       withOuterLines = true,
       withHorizontalLabels = true,
       withVerticalLabels = true,
+      innerLinesProps = {},
+      outerLinesProps = {},
       style = {},
       decorator,
       onDataPointClick
@@ -234,7 +236,9 @@ class LineChart extends AbstractChart {
     const {borderRadius = 0} = style
     const config = {
       width,
-      height
+      height,
+      innerLinesProps,
+      outerLinesProps,
     }
     const datas = this.getDatas(data.datasets)
     return (
