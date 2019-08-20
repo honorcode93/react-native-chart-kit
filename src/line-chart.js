@@ -21,15 +21,18 @@ class LineChart extends AbstractChart {
       width,
       height,
       paddingTop,
+      paddingLeft,
       paddingRight,
-      onDataPointClick
+      onDataPointClick,
+      orientation
     } = config
     const output = []
     const datas = this.getDatas(data)
     data.map((dataset, index) => {
       dataset.data.map((x, i) => {
-        const cx =
-          paddingRight + (i * (width - paddingRight)) / dataset.data.length
+        const cx = orientation === 'left'
+          ? paddingLeft + (i * (width - paddingLeft)) / dataset.data.length
+          : paddingRight + (i * (width - paddingRight)) / dataset.data.length
         const cy =
           (height / 4) *
             3 *
@@ -76,7 +79,7 @@ class LineChart extends AbstractChart {
       return this.renderBezierShadow(config)
     }
 
-    const {data, width, height, paddingRight, paddingTop} = config
+    const {data, width, height, paddingLeft, paddingTop, paddingRight, orientation} = config
     const output = []
     const datas = this.getDatas(data)
     const baseHeight = this.calcBaseHeight(datas, height)
@@ -88,7 +91,9 @@ class LineChart extends AbstractChart {
             dataset.data
               .map(
                 (d, i) => {
-                  const x = paddingRight + (i * (width - paddingRight)) / dataset.data.length
+                  const x = orientation === 'left'
+                  ? paddingLeft + (i * (width - paddingLeft)) / dataset.data.length
+                  : paddingRight + (i * (width - paddingRight)) / dataset.data.length
                   const y = (baseHeight -  this.calcHeight(d, datas, height)) / 4 * 3 + paddingTop
                   return `${x},${y}`
                 }
@@ -112,14 +117,14 @@ class LineChart extends AbstractChart {
       return this.renderBezierLine(config)
     }
 
-    const {width, height, paddingRight, paddingTop, data} = config
+    const {width, height, paddingLeft, paddingTop, data, paddingRight, orientation} = config
     const output = []
     const datas = this.getDatas(data)
     const baseHeight = this.calcBaseHeight(datas, height)
     data.forEach((dataset, index) => {
       const points = dataset.data.map(
         (d, i) => {
-          const x  = (i * (width - paddingRight)) / dataset.data.length + paddingRight
+          const x  = (i * (width - paddingLeft)) / dataset.data.length + paddingLeft
           const y = (baseHeight -  this.calcHeight(d, datas, height)) / 4 * 3 + paddingTop
           return `${x},${y}`
         }
@@ -140,7 +145,7 @@ class LineChart extends AbstractChart {
   }
 
   getBezierLinePoints = (dataset, config) => {
-    const {width, height, paddingRight, paddingTop, data} = config
+    const {width, height, paddingLeft, paddingTop, data} = config
     if (dataset.data.length === 0) {
       return 'M0,0'
     }
@@ -148,7 +153,7 @@ class LineChart extends AbstractChart {
     const datas = this.getDatas(data)
     const x = i =>
       Math.floor(
-        paddingRight + (i * (width - paddingRight)) / dataset.data.length
+        paddingLeft + (i * (width - paddingLeft)) / dataset.data.length
       )
     const baseHeight = this.calcBaseHeight(datas, height)
     const y = i => {
@@ -190,15 +195,15 @@ class LineChart extends AbstractChart {
   }
 
   renderBezierShadow = config => {
-    const {width, height, paddingRight, paddingTop, data} = config
+    const {width, height, paddingLeft, paddingTop, paddingRight, data} = config
     const output = []
     data.map((dataset, index) => {
       const d =
         this.getBezierLinePoints(dataset, config) +
-        ` L${paddingRight +
-          ((width - paddingRight) / dataset.data.length) *
+        ` L${paddingLeft +
+          ((width - paddingLeft) / dataset.data.length) *
             (dataset.data.length - 1)},${(height / 4) * 3 +
-          paddingTop} L${paddingRight},${(height / 4) * 3 + paddingTop} Z`
+          paddingTop} L${paddingLeft},${(height / 4) * 3 + paddingTop} Z`
       output.push(
         <Path
           key={index}
@@ -212,8 +217,6 @@ class LineChart extends AbstractChart {
   }
 
   render() {
-    const paddingTop = 16
-    const paddingRight = 64
     const {
       width,
       height,
@@ -224,14 +227,20 @@ class LineChart extends AbstractChart {
       withVerticalInnerLines = true,
       withHorizontalInnerLines = true,
       withOuterLines = true,
+      withVerticalOuterLines = true,
+      withHorizontalOuterLines = true,
       withHorizontalLabels = true,
       withVerticalLabels = true,
+      horizontalLabelsOrientation = 'left',
       innerLinesProps = {},
       outerLinesProps = {},
       style = {},
       decorator,
-      onDataPointClick
+      onDataPointClick,
     } = this.props
+    const paddingTop = 16
+    const paddingLeft = horizontalLabelsOrientation === 'right' ? 0 : 64
+    const paddingRight = horizontalLabelsOrientation === 'right' ? 64 : 0
     const {labels = []} = data
     const {borderRadius = 0} = style
     const config = {
@@ -262,12 +271,14 @@ class LineChart extends AbstractChart {
                     ...config,
                     count: 4,
                     paddingTop,
+                    paddingLeft,
                     paddingRight
                   })
-                : withOuterLines
+                : withOuterLines && withHorizontalOuterLines
                 ? this.renderHorizontalLine({
                     ...config,
                     paddingTop,
+                    paddingLeft,
                     paddingRight
                   })
                 : null}
@@ -279,7 +290,9 @@ class LineChart extends AbstractChart {
                 count: Math.min(...datas) === Math.max(...datas) ? 1 : 4,
                 data: datas,
                 paddingTop,
-                paddingRight
+                paddingLeft,
+                paddingRight,
+                orientation: horizontalLabelsOrientation
               })
               : null}
             </G>
@@ -289,12 +302,14 @@ class LineChart extends AbstractChart {
                     ...config,
                     data: data.datasets[0].data,
                     paddingTop,
+                    paddingLeft,
                     paddingRight
                   })
-                : withOuterLines
+                : withOuterLines && withVerticalOuterLines
                 ? this.renderVerticalLine({
                     ...config,
                     paddingTop,
+                    paddingLeft,
                     paddingRight
                   })
                 : null}
@@ -304,16 +319,18 @@ class LineChart extends AbstractChart {
                 ? this.renderVerticalLabels({
                 ...config,
                 labels,
-                paddingRight,
-                paddingTop
+                paddingLeft,
+                paddingTop,
+                paddingRight
               })
               : null}
             </G>
             <G>
               {this.renderLine({
                 ...config,
-                paddingRight,
+                paddingLeft,
                 paddingTop,
+                paddingRight,
                 data: data.datasets
               })}
             </G>
@@ -322,8 +339,10 @@ class LineChart extends AbstractChart {
                 this.renderShadow({
                   ...config,
                   data: data.datasets,
+                  paddingLeft,
                   paddingRight,
-                  paddingTop
+                  paddingTop,
+                  orientation: horizontalLabelsOrientation
                 })}
             </G>
             <G>
@@ -333,7 +352,9 @@ class LineChart extends AbstractChart {
                   data: data.datasets,
                   paddingTop,
                   paddingRight,
-                  onDataPointClick
+                  paddingLeft,
+                  onDataPointClick,
+                  orientation: horizontalLabelsOrientation
                 })}
             </G>
             <G>
@@ -342,7 +363,9 @@ class LineChart extends AbstractChart {
                   ...config,
                   data: data.datasets,
                   paddingTop,
-                  paddingRight
+                  paddingLeft,
+                  paddingRight,
+                  orientation: horizontalLabelsOrientation
                 })}
             </G>
           </G>

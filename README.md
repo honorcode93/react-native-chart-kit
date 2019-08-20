@@ -359,7 +359,7 @@ Render background vertical lines. Takes a config object with following propertie
   // height of your chart
   height: Number,
   paddingTop: Number,
-  paddingRight: Number
+  paddingLeft: Number
 }
 ```
 

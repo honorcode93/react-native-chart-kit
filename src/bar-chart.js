@@ -7,7 +7,7 @@ const barWidth = 32
 
 class BarChart extends AbstractChart {
   renderBars = config => {
-    const {data, width, height, paddingTop, paddingRight} = config
+    const {data, width, height, paddingTop, paddingLeft} = config
     const baseHeight = this.calcBaseHeight(data, height)
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height)
@@ -16,8 +16,8 @@ class BarChart extends AbstractChart {
         <Rect
           key={Math.random()}
           x={
-            paddingRight +
-            (i * (width - paddingRight)) / data.length +
+            paddingLeft +
+            (i * (width - paddingLeft)) / data.length +
             barWidth / 2
           }
           y={
@@ -33,7 +33,7 @@ class BarChart extends AbstractChart {
   }
 
   renderBarTops = config => {
-    const {data, width, height, paddingTop, paddingRight} = config
+    const {data, width, height, paddingTop, paddingLeft} = config
     const baseHeight = this.calcBaseHeight(data, height)
     return data.map((x, i) => {
       const barHeight = this.calcHeight(x, data, height)
@@ -41,8 +41,8 @@ class BarChart extends AbstractChart {
         <Rect
           key={Math.random()}
           x={
-            paddingRight +
-            (i * (width - paddingRight)) / data.length +
+            paddingLeft +
+            (i * (width - paddingLeft)) / data.length +
             barWidth / 2
           }
           y={((baseHeight - barHeight) / 4) * 3 + paddingTop}
@@ -56,7 +56,7 @@ class BarChart extends AbstractChart {
 
   render() {
     const paddingTop = 16
-    const paddingRight = 64
+    const paddingLeft = 64
     const { 
       width,
       height,
@@ -98,7 +98,7 @@ class BarChart extends AbstractChart {
               count: 4,
               data: data.datasets[0].data,
               paddingTop,
-              paddingRight
+              paddingLeft
             })
             : null}
           </G>
@@ -107,7 +107,7 @@ class BarChart extends AbstractChart {
               ? this.renderVerticalLabels({
               ...config,
               labels: data.labels,
-              paddingRight,
+              paddingLeft,
               paddingTop,
               horizontalOffset: barWidth
             })
@@ -118,7 +118,7 @@ class BarChart extends AbstractChart {
               ...config,
               data: data.datasets[0].data,
               paddingTop,
-              paddingRight
+              paddingLeft
             })}
           </G>
           <G>
@@ -126,7 +126,7 @@ class BarChart extends AbstractChart {
               ...config,
               data: data.datasets[0].data,
               paddingTop,
-              paddingRight
+              paddingLeft
             })}
           </G>
         </Svg>

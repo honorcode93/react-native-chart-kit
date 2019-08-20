@@ -12,7 +12,7 @@ class StackedBarChart extends AbstractChart {
       width,
       height,
       paddingTop,
-      paddingRight,
+      paddingLeft,
       border,
       colors
     } = config
@@ -25,8 +25,8 @@ class StackedBarChart extends AbstractChart {
         h = (height - 55) * (x[z] / border)
         const y = (height / 4) * 3 - h + st
         const xC =
-          (paddingRight +
-            (i * (width - paddingRight)) / data.length +
+          (paddingLeft +
+            (i * (width - paddingLeft)) / data.length +
             barWidth / 2) *
           0.7
         ret.push(
@@ -88,7 +88,7 @@ class StackedBarChart extends AbstractChart {
 
   render() {
     const paddingTop = 15
-    const paddingRight = 50
+    const paddingLeft = 50
     const {
       width,
       height,
@@ -138,7 +138,7 @@ class StackedBarChart extends AbstractChart {
               count: 4,
               data: [0, border],
               paddingTop,
-              paddingRight
+              paddingLeft
             })
             : null}
           </G>
@@ -147,7 +147,7 @@ class StackedBarChart extends AbstractChart {
               ? this.renderVerticalLabels({
               ...config,
               labels: data.labels,
-              paddingRight: paddingRight + 28,
+              paddingLeft: paddingLeft + 28,
               stackedBar: true,
               paddingTop,
               horizontalOffset: barWidth
@@ -161,7 +161,7 @@ class StackedBarChart extends AbstractChart {
               border,
               colors: this.props.data.barColors,
               paddingTop,
-              paddingRight: paddingRight + 20
+              paddingLeft: paddingLeft + 20
             })}
           </G>
           {this.renderLegend({

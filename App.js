@@ -135,6 +135,24 @@ export default class App extends React.Component {
                   })
                 }
               />
+              <Text style={labelStyle}>Right Bezier Line Chart</Text>
+              <LineChart
+                bezier
+                horizontalLabelsOrientation="right"
+                data={data}
+                width={width}
+                height={height}
+                yAxisLabel="$"
+                chartConfig={chartConfig}
+                style={graphStyle}
+                onDataPointClick={({value, getColor}) =>
+                  showMessage({
+                    message: `${value}`,
+                    description: 'You selected this value',
+                    backgroundColor: getColor(0.9)
+                  })
+                }
+              />
               <FlashMessage duration={1000} />
               <Text style={labelStyle}>Progress Chart</Text>
               <ProgressChart

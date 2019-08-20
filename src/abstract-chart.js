@@ -40,15 +40,15 @@ class AbstractChart extends Component {
   }
 
   renderHorizontalLines = config => {
-    const {count, width, height, paddingTop, paddingRight, innerLinesProps} = config
+    const {count, width, height, paddingTop, paddingLeft, paddingRight, innerLinesProps} = config
     console.log({ config });
     return [...new Array(count)].map((_, i) => {
       return (
         <Line
           key={Math.random()}
-          x1={paddingRight}
+          x1={paddingLeft}
           y1={(height / 4) * i + paddingTop}
-          x2={width}
+          x2={width - paddingRight}
           y2={(height / 4) * i + paddingTop}
           stroke={this.props.chartConfig.color(0.2)}
           strokeDasharray="5, 10"
@@ -60,13 +60,13 @@ class AbstractChart extends Component {
   }
 
   renderHorizontalLine = config => {
-    const {width, height, paddingTop, paddingRight, outerLinesProps} = config
+    const {width, height, paddingTop, paddingLeft, paddingRight, outerLinesProps} = config
     return (
       <Line
         key={Math.random()}
-        x1={paddingRight}
+        x1={paddingLeft}
         y1={height - height / 4 + paddingTop}
-        x2={width}
+        x2={width - paddingRight}
         y2={height - height / 4 + paddingTop}
         stroke={this.props.chartConfig.color(0.2)}
         strokeDasharray="5, 10"
@@ -81,8 +81,11 @@ class AbstractChart extends Component {
       count,
       data,
       height,
+      width,
       paddingTop,
+      paddingLeft,
       paddingRight,
+      orientation,
       yLabelsOffset = 12
     } = config
     const decimalPlaces = this.props.chartConfig.decimalPlaces === undefined ? 2 : this.props.chartConfig.decimalPlaces
@@ -103,8 +106,8 @@ class AbstractChart extends Component {
       return (
         <Text
           key={Math.random()}
-          x={paddingRight - yLabelsOffset}
-          textAnchor="end"
+          x={orientation === 'left' ? paddingLeft - yLabelsOffset : width - paddingRight + 10}
+          textAnchor={orientation === 'left' ? 'end' : 'start'}
           y={(height * 3) / 4 - ((height - paddingTop) / count) * i + 12}
           fontSize={12}
           fill={this.props.chartConfig.color(0.5)}
@@ -120,6 +123,7 @@ class AbstractChart extends Component {
       labels = [],
       width,
       height,
+      paddingLeft,
       paddingRight,
       paddingTop,
       horizontalOffset = 0,
@@ -136,8 +140,8 @@ class AbstractChart extends Component {
         <Text
           key={Math.random()}
           x={
-            (((width - paddingRight) / labels.length) * i +
-              paddingRight +
+            (((width - paddingLeft) / labels.length) * i +
+              paddingLeft +
               horizontalOffset) *
             fac
           }
@@ -153,17 +157,17 @@ class AbstractChart extends Component {
   }
 
   renderVerticalLines = config => {
-    const {data, width, height, paddingTop, paddingRight, innerLinesProps} = config
+    const {data, width, height, paddingTop, paddingLeft, paddingRight, innerLinesProps} = config
     return [...new Array(data.length)].map((_, i) => {
       return (
         <Line
           key={Math.random()}
           x1={Math.floor(
-            ((width - paddingRight) / data.length) * i + paddingRight
+            ((width - paddingLeft) / data.length) * i + paddingLeft
           )}
           y1={0}
           x2={Math.floor(
-            ((width - paddingRight) / data.length) * i + paddingRight
+            ((width - paddingLeft) / data.length) * i + paddingLeft
           )}
           y2={height - height / 4 + paddingTop}
           stroke={this.props.chartConfig.color(0.2)}
@@ -176,13 +180,13 @@ class AbstractChart extends Component {
   }
 
   renderVerticalLine = config => {
-    const {height, paddingTop, paddingRight, outerLinesProps} = config
+    const {height, paddingTop, paddingLeft, outerLinesProps} = config
     return (
       <Line
         key={Math.random()}
-        x1={Math.floor(paddingRight)}
+        x1={Math.floor(paddingLeft)}
         y1={0}
-        x2={Math.floor(paddingRight)}
+        x2={Math.floor(paddingLeft)}
         y2={height - height / 4 + paddingTop}
         stroke={this.props.chartConfig.color(0.2)}
         strokeDasharray="5, 10"
