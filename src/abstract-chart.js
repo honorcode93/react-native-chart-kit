@@ -41,7 +41,6 @@ class AbstractChart extends Component {
 
   renderHorizontalLines = config => {
     const {count, width, height, paddingTop, paddingLeft, paddingRight, innerLinesProps} = config
-    console.log({ config });
     return [...new Array(count)].map((_, i) => {
       return (
         <Line
