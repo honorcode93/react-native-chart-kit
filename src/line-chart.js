@@ -34,21 +34,33 @@ class LineChart extends AbstractChart {
       height,
       paddingTop,
       paddingRight,
-      onDataPointClick
+      onDataPointClick,
+      count,
+      horizontalLabels = null,
+      orientation
     } = config;
     const output = [];
     const datas = this.getDatas(data);
     const baseHeight = this.calcBaseHeight(datas, height);
     const { getDotColor, hidePointsAtIndex = [] } = this.props;
+
+    const usedCount =
+      horizontalLabels !== null ? horizontalLabels.length : count;
+    const usedPaddingRight = orientation === "left" ? 0 : paddingRight;
+
     data.forEach(dataset => {
       dataset.data.forEach((x, i) => {
         if (hidePointsAtIndex.includes(i)) {
           return;
         }
         const cx =
-          paddingRight + (i * (width - paddingRight)) / dataset.data.length;
+          usedPaddingRight +
+          (i * (width - usedPaddingRight)) / dataset.data.length;
         const cy =
-          ((baseHeight - this.calcHeight(x, datas, height)) / 4) * 3 +
+          ((baseHeight -
+            this.calcHeight(x, horizontalLabels || datas, height)) /
+            usedCount) *
+            (usedCount - 1) +
           paddingTop;
         const onPress = () => {
           if (!onDataPointClick || hidePointsAtIndex.includes(i)) {
@@ -134,16 +146,30 @@ class LineChart extends AbstractChart {
       return this.renderBezierLine(config);
     }
 
-    const { width, height, paddingRight, paddingTop, data } = config;
+    const {
+      width,
+      height,
+      paddingRight,
+      paddingTop,
+      data,
+      orientation,
+      horizontalLabels = null,
+      count = 4
+    } = config;
     const output = [];
     const datas = this.getDatas(data);
     const baseHeight = this.calcBaseHeight(datas, height);
+    const usedPaddingRight = orientation === "left" ? 0 : paddingRight;
+    const usedCount =
+      horizontalLabels !== null ? horizontalLabels.length : count;
     data.forEach((dataset, index) => {
       const points = dataset.data.map((d, i) => {
         const x =
-          (i * (width - paddingRight)) / dataset.data.length + paddingRight;
+          (i * (width - usedPaddingRight)) / dataset.data.length +
+          usedPaddingRight;
         const y =
-          ((baseHeight - this.calcHeight(d, datas, height)) / 4) * 3 +
+          ((baseHeight - this.calcHeight(d, datas, height)) / usedCount) *
+            (usedCount - 1) +
           paddingTop;
         return `${x},${y}`;
       });
@@ -163,20 +189,40 @@ class LineChart extends AbstractChart {
   };
 
   getBezierLinePoints = (dataset, config) => {
-    const { width, height, paddingRight, paddingTop, data } = config;
+    const {
+      width,
+      height,
+      paddingRight,
+      paddingTop,
+      data,
+      orientation,
+      horizontalLabels = null,
+      count = 4
+    } = config;
     if (dataset.data.length === 0) {
       return "M0,0";
     }
 
+    const usedPaddingRight = orientation === "left" ? 0 : paddingRight;
+    const usedCount =
+      horizontalLabels !== null ? horizontalLabels.length : count;
+
     const datas = this.getDatas(data);
     const x = i =>
       Math.floor(
-        paddingRight + (i * (width - paddingRight)) / dataset.data.length
+        usedPaddingRight +
+          (i * (width - usedPaddingRight)) / dataset.data.length
       );
     const baseHeight = this.calcBaseHeight(datas, height);
     const y = i => {
-      const yHeight = this.calcHeight(dataset.data[i], datas, height);
-      return Math.floor(((baseHeight - yHeight) / 4) * 3 + paddingTop);
+      const yHeight = this.calcHeight(
+        dataset.data[i],
+        horizontalLabels || datas,
+        height
+      );
+      return Math.floor(
+        ((baseHeight - yHeight) / usedCount) * (usedCount - 1) + paddingTop
+      );
     };
 
     return [`M${x(0)},${y(0)}`]
@@ -253,7 +299,8 @@ class LineChart extends AbstractChart {
       width,
       height,
       verticalLabelRotation,
-      horizontalLabelRotation
+      horizontalLabelRotation,
+      orientation: this.props.chartConfig.orientation || "right"
     };
     const datas = this.getDatas(data.datasets);
     return (
@@ -279,6 +326,8 @@ class LineChart extends AbstractChart {
                 ? this.renderHorizontalLines({
                     ...config,
                     count: 4,
+                    labels: data.horizontalLabels,
+                    count: this.props.chartConfig.count || 4,
                     paddingTop,
                     paddingRight
                   })
@@ -294,7 +343,8 @@ class LineChart extends AbstractChart {
               {withHorizontalLabels
                 ? this.renderHorizontalLabels({
                     ...config,
-                    count: Math.min(...datas) === Math.max(...datas) ? 1 : 4,
+                    labels: data.horizontalLabels,
+                    count: this.props.chartConfig.count || 4,
                     data: datas,
                     paddingTop,
                     paddingRight
@@ -322,6 +372,8 @@ class LineChart extends AbstractChart {
                 ? this.renderVerticalLabels({
                     ...config,
                     labels,
+                    horizontalLabels: data.horizontalLabels,
+                    count: this.props.chartConfig.count || 4,
                     paddingRight,
                     paddingTop
                   })
@@ -332,6 +384,8 @@ class LineChart extends AbstractChart {
                 ...config,
                 paddingRight,
                 paddingTop,
+                horizontalLabels: data.horizontalLabels,
+                count: this.props.chartConfig.count || 4,
                 data: data.datasets
               })}
             </G>
@@ -349,7 +403,9 @@ class LineChart extends AbstractChart {
                 this.renderDots({
                   ...config,
                   data: data.datasets,
+                  horizontalLabels: data.horizontalLabels,
                   paddingTop,
+                  count: this.props.chartConfig.count || 4,
                   paddingRight,
                   onDataPointClick
                 })}

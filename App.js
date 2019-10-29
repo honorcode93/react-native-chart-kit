@@ -20,13 +20,28 @@ import {
 // in Expo - swipe left to see the following styling, or create your own
 const chartConfigs = [
   {
-    backgroundColor: "#000000",
-    backgroundGradientFrom: "#1E2923",
-    backgroundGradientTo: "#08130D",
-    color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+    orientation: "left",
+    backgroundColor: "#fafafa",
+    backgroundGradientFrom: "#fafafa",
+    backgroundGradientTo: "#fafafa",
+    color: (opacity = 1) => `rgb(135, 135, 135)`,
     style: {
-      borderRadius: 16
-    }
+      borderRadius: 0
+    },
+    propsForBackgroundLines: {
+      strokeDasharray: "",
+
+      vertical: {
+        stroke: ""
+      }
+    },
+    count: 4,
+    getBarProps: (value, index) => {
+      return {
+        fill: value < 0 ? "red" : "green"
+      };
+    },
+    barPercentage: 0.2
   },
   {
     backgroundColor: "#022173",
@@ -123,6 +138,7 @@ export default class App extends React.Component {
             >
               <Text style={labelStyle}>Bezier Line Chart</Text>
               <LineChart
+                withShadow={false}
                 bezier
                 data={data}
                 width={width}
@@ -131,7 +147,6 @@ export default class App extends React.Component {
                 yAxisSuffix="k"
                 chartConfig={chartConfig}
                 style={graphStyle}
-                verticalLabelRotation={30}
                 onDataPointClick={({ value, getColor }) =>
                   showMessage({
                     message: `${value}`,
@@ -140,7 +155,7 @@ export default class App extends React.Component {
                   })
                 }
               />
-              <Text style={labelStyle}>Right Bezier Line Chart</Text>
+              {/*<Text style={labelStyle}>Right Bezier Line Chart</Text>
               <LineChart
                 bezier
                 horizontalLabelsOrientation="right"
@@ -167,6 +182,7 @@ export default class App extends React.Component {
                 chartConfig={chartConfig}
                 style={graphStyle}
               />
+              */}
               <Text style={labelStyle}>Bar Graph</Text>
               <BarChart
                 width={width}

@@ -1,17 +1,12 @@
 // Mock data object used for LineChart and BarChart
 
 const data = {
-  labels: ["January", "February", "March", "April", "May", "June"],
+  labels: ["1", "2", "3", "4", "5", "6", "7", "8"],
+  horizontalLabels: [0, 5000, 10000, 15000, 20000, 25000],
   datasets: [
     {
-      data: [-50, -20, -2, 86, 71, 100],
-      color: (opacity = 1) => `rgba(134, 65, 244, ${opacity})` // optional
-    },
-    {
-      data: [20, 10, 4, 56, 87, 90]
-    },
-    {
-      data: [30, 90, 67, 54, 10, 2]
+      data: [7432, 234, 4342, 4123, 15000, 3423, 20000, 0],
+      color: (opacity = 1) => `rgba(0, 159, 213, ${1})` // optional
     }
   ]
 };

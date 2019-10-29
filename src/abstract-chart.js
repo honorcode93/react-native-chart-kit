@@ -39,13 +39,17 @@ class AbstractChart extends Component {
     }
   };
 
-  getPropsForBackgroundLines() {
+  getPropsForBackgroundLines(isVertical) {
     const { propsForBackgroundLines = {} } = this.props.chartConfig;
+
+    const { vertical = {}, horizontal = {}, ...rest } = propsForBackgroundLines;
+
     return {
       stroke: this.props.chartConfig.color(0.2),
       strokeDasharray: "5, 10",
       strokeWidth: 1,
-      ...propsForBackgroundLines
+      ...rest,
+      ...(isVertical ? vertical : horizontal)
     };
   }
 
@@ -63,16 +67,27 @@ class AbstractChart extends Component {
   }
 
   renderHorizontalLines = config => {
-    const { count, width, height, paddingTop, paddingRight } = config;
-    return [...new Array(count)].map((_, i) => {
+    const {
+      labels = null,
+      count,
+      width,
+      height,
+      paddingTop = 16,
+      paddingRight = 64,
+      orientation = "right"
+    } = config;
+    return (labels || [...new Array(count)]).map((_, i) => {
+      const usedCount = labels !== null ? labels.length : count;
+
+      const y = (height / usedCount) * i + paddingTop;
       return (
         <Line
           key={Math.random()}
-          x1={paddingRight}
-          y1={(height / 4) * i + paddingTop}
-          x2={width}
-          y2={(height / 4) * i + paddingTop}
-          {...this.getPropsForBackgroundLines()}
+          x1={orientation === "left" ? 0 : paddingRight}
+          y1={y}
+          x2={orientation === "left" ? width - paddingRight : width}
+          y2={y}
+          {...this.getPropsForBackgroundLines(false)}
         />
       );
     });
@@ -87,65 +102,93 @@ class AbstractChart extends Component {
         y1={height - height / 4 + paddingTop}
         x2={width}
         y2={height - height / 4 + paddingTop}
-        {...this.getPropsForBackgroundLines()}
+        {...this.getPropsForBackgroundLines(false)}
       />
     );
   };
 
   renderHorizontalLabels = config => {
     const {
+      labels = null,
       count,
       data,
       height,
       paddingTop,
+      width,
+      orientation,
       paddingRight,
       horizontalLabelRotation = 0
     } = config;
-    const { yAxisLabel = "", yAxisSuffix = "", yLabelsOffset = 12, chartConfig } = this.props;
+    const {
+      yAxisLabel = "",
+      yAxisSuffix = "",
+      yLabelsOffset = 12,
+      chartConfig
+    } = this.props;
     const { decimalPlaces = 2 } = chartConfig;
-    return [...new Array(count)].map((_, i) => {
-      let yLabel;
+    return (labels || [...new Array(count)]).map((givenLabel, i) => {
+      let yLabel = givenLabel;
 
-      if (count === 1) {
-        yLabel = `${yAxisLabel}${data[0].toFixed(decimalPlaces)}${yAxisSuffix}`;
-      } else {
-        const label = this.props.fromZero
-          ? (this.calcScaler(data) / (count - 1)) * i + Math.min(...data, 0)
-          : (this.calcScaler(data) / (count - 1)) * i + Math.min(...data);
-        yLabel = `${yAxisLabel}${label.toFixed(decimalPlaces)}${yAxisSuffix}`;
+      const usedCount = labels !== null ? labels.length : count;
+
+      if (labels === null) {
+        if (usedCount === 1) {
+          yLabel = `${yAxisLabel}${data[0].toFixed(
+            decimalPlaces
+          )}${yAxisSuffix}`;
+        } else {
+          const label = this.props.fromZero
+            ? (this.calcScaler(data) / (usedCount - 1)) * i +
+              Math.min(...data, 0)
+            : (this.calcScaler(data) / (usedCount - 1)) * i + Math.min(...data);
+          yLabel = `${yAxisLabel}${label.toFixed(decimalPlaces)}${yAxisSuffix}`;
+        }
       }
 
-      const x = paddingRight - yLabelsOffset;
+      const x = (orientation === "left" ? width : paddingRight) - yLabelsOffset;
+      /*
       const y =
-        count === 1 && this.props.fromZero
+        usedCount === 1 && this.props.fromZero
           ? paddingTop + 4
-          : (height * 3) / 4 - ((height - paddingTop) / count) * i + 12;
-      return (
-        <Text
-          rotation={horizontalLabelRotation}
-          origin={`${x}, ${y}`}
-          key={Math.random()}
-          x={x}
-          textAnchor="end"
-          y={y}
-          {...this.getPropsForLabels()}
-        >
-          {yLabel}
-        </Text>
-      );
+          : (height * 3) / 4 - ((height - paddingTop) / usedCount) * i + 12;
+      */
+      const y = height - (height / usedCount) * (i + 1) + paddingTop;
+      const labelProps = {
+        rotation: horizontalLabelRotation,
+        origin: `${x}, ${y}`,
+        key: Math.random(),
+        x,
+        textAnchor: "end",
+        y,
+        ...this.getPropsForLabels()
+      };
+
+      return this.renderHorizontalLabel(yLabel, labelProps);
     });
+  };
+
+  renderHorizontalLabel = (yLabel, labelProps) => {
+    const { renderHorizontalLabel = null } = this.props.chartConfig;
+    if (renderHorizontalLabel !== null) {
+      return renderHorizontalLabel(yLabel, labelProps);
+    }
+
+    return <Text {...labelProps}>{yLabel}</Text>;
   };
 
   renderVerticalLabels = config => {
     const {
       labels = [],
+      count = 4,
+      horizontalLabels = null,
       width,
       height,
       paddingRight,
       paddingTop,
       horizontalOffset = 0,
       stackedBar = false,
-      verticalLabelRotation = 0
+      verticalLabelRotation = 0,
+      orientation
     } = config;
     const {
       xAxisLabel = "",
@@ -157,16 +200,24 @@ class AbstractChart extends Component {
     if (stackedBar) {
       fac = 0.71;
     }
+
+    const usedPaddingRight = orientation === "left" ? 12 : paddingRight;
+    const usedCount =
+      horizontalLabels !== null ? horizontalLabels.length : count;
     return labels.map((label, i) => {
       if (hidePointsAtIndex.includes(i)) {
         return null;
       }
       const x =
         (((width - paddingRight) / labels.length) * i +
-          paddingRight +
+          usedPaddingRight +
           horizontalOffset) *
         fac;
-      const y = (height * 3) / 4 + paddingTop + fontSize * 2 + xLabelsOffset;
+      const y =
+        (height * (usedCount - 1)) / usedCount +
+        paddingTop +
+        fontSize * 2 +
+        xLabelsOffset;
       return (
         <Text
           origin={`${x}, ${y}`}
@@ -197,7 +248,7 @@ class AbstractChart extends Component {
             ((width - paddingRight) / data.length) * i + paddingRight
           )}
           y2={height - height / 4 + paddingTop}
-          {...this.getPropsForBackgroundLines()}
+          {...this.getPropsForBackgroundLines(true)}
         />
       );
     });
@@ -212,7 +263,7 @@ class AbstractChart extends Component {
         y1={0}
         x2={Math.floor(paddingRight)}
         y2={height - height / 4 + paddingTop}
-        {...this.getPropsForBackgroundLines()}
+        {...this.getPropsForBackgroundLines(true)}
       />
     );
   };
